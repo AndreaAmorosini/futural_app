@@ -3,6 +3,11 @@ import 'package:flutter/rendering.dart'; // Import for debugPaintSizeEnabled
 import 'package:flutter/services.dart'; // Import for SystemChrome
 import 'package:flutter_svg/flutter_svg.dart';
 
+// Import the external files
+import 'app_colors.dart';
+import 'travel_list_item_card.dart';
+import 'tour_details_page.dart';
+
 void main() {
   // Ensure the status bar is transparent and the UI can extend behind it
   SystemChrome.setSystemUIOverlayStyle(
@@ -34,86 +39,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue, // Primary color for the app
         // Adaptive visual density helps widgets look good on different platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        // Set the primary color to our app's primary color
+        primaryColor: AppColors.primary,
+        // Set the accent color to our app's accent color
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: AppColors.accent,
+        ),
       ),
       // The home screen of the application.
       home: const TravelExplorerScreen(),
-    );
-  }
-}
-
-// A reusable widget for the card elements in the horizontal lists.
-class TravelListItemCard extends StatelessWidget {
-  final String imagePath; // Path to the image asset
-  final String title; // The title of the item
-  final String description; // A short description of the item
-  final double cardWidth; // The width of the card
-
-  const TravelListItemCard({
-    Key? key,
-    required this.imagePath, // Make imagePath required
-    required this.title, // Make title required
-    required this.description, // Make description required
-    required this.cardWidth, // Make cardWidth required
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      // Use SizedBox to control the width of the card
-      width: cardWidth,
-      child: Card(
-        elevation: 3.0, // Shadow depth for the card
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            10.0,
-          ), // Rounded corners for the card
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Expanded makes the image take up the remaining vertical space
-            // within the card after the text content.
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(10.0),
-                ), // Rounded top corners for the image
-                child: Image.asset(
-                  imagePath, // Use the imagePath parameter
-                  fit:
-                      BoxFit
-                          .cover, // Cover the available space, potentially cropping
-                  width:
-                      double
-                          .infinity, // Make the image take the full width of the card
-                ),
-              ),
-            ),
-            // Padding around the text content.
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title of the list item.
-                  Text(
-                    title, // Use the title parameter
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  // Short description of the list item.
-                  Text(
-                    description, // Use the description parameter
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    maxLines: 1, // Limit the description to one line
-                    overflow:
-                        TextOverflow.ellipsis, // Add "..." if text overflows
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -151,9 +85,7 @@ class TravelExplorerScreen extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
-                color: Colors.black.withOpacity(
-                  0.3,
-                ), // Semi-transparent overlay
+                color: AppColors.darkOverlay, // Using AppColors for the overlay
               ),
             ),
           ),
@@ -187,7 +119,6 @@ class TravelExplorerScreen extends StatelessWidget {
       {'name': 'Cultura', 'image': 'assets/wine_category.jpg'},
       {'name': 'Cibo', 'image': 'assets/cibo_example.jpg'},
     ];
-
 
     return Scaffold(
       // Extends the body to be behind the app bar. This is crucial for the
@@ -232,10 +163,10 @@ class TravelExplorerScreen extends StatelessWidget {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent, // Start with transparent
-                                Colors.white.withOpacity(
-                                  0.8,
-                                ), // Transition to semi-transparent white
-                                Colors.white, // End with opaque white
+                                AppColors
+                                    .lightOverlay, // Using AppColors for semi-transparent white
+                                AppColors
+                                    .background, // Using AppColors for white background
                               ],
                               // Stops define where each color in the gradient is at.
                               stops: const [
@@ -266,22 +197,11 @@ class TravelExplorerScreen extends StatelessWidget {
                         vertical: 8.0,
                         horizontal: 12.0,
                       ),
-                        // child: Row(
-                        //   children: [
-                        //   SizedBox(
-                        //     width: screenWidth * 0.3, // Set the desired width
-                        //     height: screenHeight * 0.3, // Set the desired height
-                        //     child: Image(image: AssetImage('assets/logo_app.png')),
-                        //   ),
-                        //   const Spacer(), // Push other content to the right
-                        //   ],
-                        // ),
-                        child:                           
-                          SizedBox(
-                            width: screenWidth * 0.17, // Set the desired width
-                            height: screenHeight * 0.17, // Set the desired height
-                            child: Image(image: AssetImage('assets/logo_app.png')),
-                          ),
+                      child: SizedBox(
+                        width: screenWidth * 0.17, // Set the desired width
+                        height: screenHeight * 0.2, // Set the desired height
+                        child: Image(image: AssetImage('assets/logo_app.png'),),
+                      ),
                     ),
                   ),
                 ),
@@ -298,8 +218,11 @@ class TravelExplorerScreen extends StatelessWidget {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Dove vuoi andare?', // Placeholder text
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.search,
+                    color:
+                        AppColors
+                            .textSecondary, // Using AppColors for icon color
                   ), // Search icon at the beginning
                   // Define the border style. OutlineInputBorder creates a border around the field.
                   border: OutlineInputBorder(
@@ -309,7 +232,9 @@ class TravelExplorerScreen extends StatelessWidget {
                     borderSide: BorderSide.none, // No visible border line
                   ),
                   filled: true, // Fill the background with a color
-                  fillColor: Colors.grey[200], // Light grey background color
+                  fillColor:
+                      AppColors
+                          .searchBarBackground, // Using AppColors for search bar background
                   // Adjust content padding inside the TextField.
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 0,
@@ -337,6 +262,9 @@ class TravelExplorerScreen extends StatelessWidget {
                       // TODO: Implement filter logic based on selection.
                       print('Natura selected: $selected');
                     },
+                    selectedColor: AppColors.primary.withOpacity(
+                      0.2,
+                    ), // Using AppColors for selected chip color
                   ),
                   FilterChip(
                     label: const Text('Cibo'),
@@ -344,6 +272,9 @@ class TravelExplorerScreen extends StatelessWidget {
                       // TODO: Implement filter logic based on selection.
                       print('Cibo selected: $selected');
                     },
+                    selectedColor: AppColors.primary.withOpacity(
+                      0.2,
+                    ), // Using AppColors for selected chip color
                   ),
                   FilterChip(
                     label: const Text('Cultura'),
@@ -351,6 +282,9 @@ class TravelExplorerScreen extends StatelessWidget {
                       // TODO: Implement filter logic based on selection.
                       print('Cultura selected: $selected');
                     },
+                    selectedColor: AppColors.primary.withOpacity(
+                      0.2,
+                    ), // Using AppColors for selected chip color
                   ),
                   // Add more FilterChip widgets for other categories as needed.
                 ],
@@ -366,8 +300,8 @@ class TravelExplorerScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Section Title.
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
                       vertical: 10.0,
                     ),
@@ -376,6 +310,9 @@ class TravelExplorerScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color:
+                            AppColors
+                                .textPrimary, // Using AppColors for text color
                       ),
                     ),
                   ),
@@ -404,14 +341,62 @@ class TravelExplorerScreen extends StatelessWidget {
                           child: TravelListItemCard(
                             // Pass dummy data or data from your model here.
                             imagePath:
-                                'assets/acquedotto.jpg', // Placeholder asset path
+                                index == 0
+                                    ? 'assets/montevergine.jpg'
+                                    : 'assets/acquedotto.jpg', // Placeholder asset path
                             title:
-                                'Destination ${index + 1}', // Placeholder title
+                                index == 0
+                                    ? 'Montevergine'
+                                    : 'Destination ${index + 1}', // Placeholder title
                             description:
                                 'Discover the beauty of this place.', // Placeholder description
                             cardWidth:
                                 screenWidth *
                                 0.6, // Responsive width for the card
+                            onTap: () {
+                              // Handle card tap
+                              // print('Tapped on destination ${index + 1}');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => TourDetailScreen(
+                                        tourId: 'tour_${index + 1}',
+                                        tourName:
+                                            index == 0
+                                                ? 'Montevergine'
+                                                : 'Destination ${index + 1}',
+                                        location:
+                                            index == 0
+                                                ? 'Avellino, Campania'
+                                                : 'Location ${index + 1}',
+                                        rating:
+                                            index == 0
+                                                ? 4.5
+                                                : 4.0 + (index * 0.1),
+                                        reviewCount:
+                                            index == 0
+                                                ? 675
+                                                : 100 + (index * 25),
+                                        images: [
+                                            index == 0
+                                                ? 'assets/montevergine.jpg'
+                                                : 'assets/acquedotto.jpg',
+                                              "assets/acquedotto.jpg",
+                                              "assets/cibo_example.jpg",
+                                        ],
+                                        category:
+                                            index == 0
+                                                ? 'Natura'
+                                                : 'Category ${index + 1}',
+                                        description:
+                                            index == 0
+                                                ? 'Il Santuario di Montevergine è un importante complesso monastico mariano situato a circa 1.270 metri sul livello del mare, nel massiccio del Partenio, nel comune di Mercogliano (Avellino). Fondato nel 1124 da San Guglielmo da Vercelli, il santuario è oggi uno dei principali luoghi di pellegrinaggio del Sud Italia, con oltre un milione di visitatori ogni anno.'
+                                                : 'Discover the beauty and history of this amazing destination with our guided tour.',
+                                      ),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
@@ -432,9 +417,15 @@ class TravelExplorerScreen extends StatelessWidget {
                 // Space out the title and the "See More" button.
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Categorie',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          AppColors
+                              .textPrimary, // Using AppColors for text color
+                    ),
                   ),
                   // Button to see more categories.
                   TextButton(
@@ -442,7 +433,12 @@ class TravelExplorerScreen extends StatelessWidget {
                       // TODO: Implement action to navigate to a categories screen.
                       print('See More Categories tapped');
                     },
-                    child: const Text('See More'),
+                    child: Text(
+                      'See More',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                      ), // Using AppColors for button text color
+                    ),
                   ),
                 ],
               ),
@@ -480,8 +476,8 @@ class TravelExplorerScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Section Title.
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
                       vertical: 10.0,
                     ),
@@ -490,6 +486,9 @@ class TravelExplorerScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color:
+                            AppColors
+                                .textPrimary, // Using AppColors for text color
                       ),
                     ),
                   ),
@@ -521,6 +520,10 @@ class TravelExplorerScreen extends StatelessWidget {
                             cardWidth:
                                 screenWidth *
                                 0.7, // Responsive width for the card
+                            onTap: () {
+                              // Handle card tap
+                              print('Tapped on culinary event ${index + 1}');
+                            },
                           ),
                         );
                       },
@@ -547,9 +550,9 @@ class TravelExplorerScreen extends StatelessWidget {
         ],
         currentIndex: 0, // Index of the currently selected item (Explore).
         selectedItemColor:
-            Colors.blue, // Color of the selected item icon and label.
+            AppColors.navActive, // Using AppColors for selected item color
         unselectedItemColor:
-            Colors.grey, // Color of unselected item icons and labels.
+            AppColors.navInactive, // Using AppColors for unselected item color
         showUnselectedLabels:
             true, // Show labels for items that are not selected.
         onTap: (int index) {
