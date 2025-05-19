@@ -197,10 +197,27 @@ class TravelExplorerScreen extends StatelessWidget {
                         vertical: 8.0,
                         horizontal: 12.0,
                       ),
+                      // child: SizedBox(
+                      //   width: screenWidth * 0.17, // Set the desired width
+                      //   height: screenHeight * 0.2, // Set the desired height
+                      //   child: Image(image: AssetImage('assets/logo_app.png'),),
+                      // ),
                       child: SizedBox(
-                        width: screenWidth * 0.17, // Set the desired width
-                        height: screenHeight * 0.2, // Set the desired height
-                        child: Image(image: AssetImage('assets/logo_app.png'),),
+                        height: screenHeight * 0.225,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "XRTOURGUIDE",
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.08,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black.withOpacity(0.8),
+                                fontFamily: "point_panther",
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -217,7 +234,7 @@ class TravelExplorerScreen extends StatelessWidget {
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Dove vuoi andare?', // Placeholder text
+                  hintText: 'What do you want to see?', // Placeholder text
                   prefixIcon: Icon(
                     Icons.search,
                     color:
@@ -244,53 +261,6 @@ class TravelExplorerScreen extends StatelessWidget {
               ),
             ),
 
-            // Horizontal Category/Filter Section 1.
-            Padding(
-              // Add vertical and horizontal padding around the filter chips.
-              padding: const EdgeInsets.symmetric(
-                vertical: 10.0,
-                horizontal: 20.0,
-              ),
-              child: Row(
-                // Distribute space evenly between the filter chips.
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // FilterChip is a Material Design widget for filter options.
-                  FilterChip(
-                    label: const Text('Natura'),
-                    onSelected: (bool selected) {
-                      // TODO: Implement filter logic based on selection.
-                      print('Natura selected: $selected');
-                    },
-                    selectedColor: AppColors.primary.withOpacity(
-                      0.2,
-                    ), // Using AppColors for selected chip color
-                  ),
-                  FilterChip(
-                    label: const Text('Cibo'),
-                    onSelected: (bool selected) {
-                      // TODO: Implement filter logic based on selection.
-                      print('Cibo selected: $selected');
-                    },
-                    selectedColor: AppColors.primary.withOpacity(
-                      0.2,
-                    ), // Using AppColors for selected chip color
-                  ),
-                  FilterChip(
-                    label: const Text('Cultura'),
-                    onSelected: (bool selected) {
-                      // TODO: Implement filter logic based on selection.
-                      print('Cultura selected: $selected');
-                    },
-                    selectedColor: AppColors.primary.withOpacity(
-                      0.2,
-                    ), // Using AppColors for selected chip color
-                  ),
-                  // Add more FilterChip widgets for other categories as needed.
-                ],
-              ),
-            ),
-
             // Horizontal List 1: Exploring the Wonders of Sri Lanka.
             Padding(
               // Add vertical padding to separate this section.
@@ -306,7 +276,7 @@ class TravelExplorerScreen extends StatelessWidget {
                       vertical: 10.0,
                     ),
                     child: Text(
-                      'Luoghi Intorno a te',
+                      'Tours around you',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -388,7 +358,7 @@ class TravelExplorerScreen extends StatelessWidget {
                                         category:
                                             index == 0
                                                 ? 'Natura'
-                                                : 'Category ${index + 1}',
+                                                : 'Interno',
                                         description:
                                             index == 0
                                                 ? 'Il Santuario di Montevergine è un importante complesso monastico mariano situato a circa 1.270 metri sul livello del mare, nel massiccio del Partenio, nel comune di Mercogliano (Avellino). Fondato nel 1124 da San Guglielmo da Vercelli, il santuario è oggi uno dei principali luoghi di pellegrinaggio del Sud Italia, con oltre un milione di visitatori ogni anno.'
@@ -418,7 +388,7 @@ class TravelExplorerScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Categorie',
+                    'Categories',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -482,7 +452,7 @@ class TravelExplorerScreen extends StatelessWidget {
                       vertical: 10.0,
                     ),
                     child: Text(
-                      'Eventi Culinari intorno a te',
+                      'Cooking Tours around you',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
