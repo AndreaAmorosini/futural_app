@@ -20,6 +20,10 @@ class AppColors {
   // UI Element colors
   static const Color cardShadow = Color(0x1A000000); // 10% black
   static const Color divider = Color(0xFFE0E0E0);
+  static const Color border = Color(0xFFE8EAED);
+  static const Color lightGrey = Color(0xFFF0F2F5);
+
+
 
   // Status colors
   static const Color success = Colors.green;

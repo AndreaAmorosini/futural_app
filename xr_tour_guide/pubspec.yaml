@@ -39,6 +39,8 @@ dependencies:
   latlong2: ^0.9.1
   geolocator: ^14.0.0
   flutter_map_location_marker: ^10.1.0
+  splash_master: "any"
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,9 @@ flutter:
     - assets/natura_categoria.jpg
     - assets/cibo_example.jpg
     - assets/montevergine.jpg
+    - assets/logo_splash.png
+    - assets/scritta_splash.png
+    - assets/logo_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -104,3 +109,46 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+splash_master:
+  # Use to specifies the color for the splash screen
+  color: '#FFFFFF'
+  # Use to specifies the splash image
+  image: 'assets/logo_app.png'
+  # Provides content mode for splash image in iOS
+  # iOS content mode options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center, top, bottom,
+  # left, right, topLeft, topRight, bottomLeft, bottomRight.
+  ios_content_mode: 'center'
+  # Provides gravity for splash image in Android
+  # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
+  # bottom, fill_vertical, center_horizontal, top, end, left, right, start
+  android_gravity: 'center'
+  # Use to specifies the splash image
+  # background_image: 'assets/logo_app.png'
+  # Provided content mode for splash image in background for iOS
+  # ios_background_content_mode: 'scaleToFill'
+  # Provides gravity for background image in Android
+  # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
+  # bottom, fill_vertical, center_horizontal, top, end, left, right, start
+  # android_background_image_gravity: 'center'
+  # Use to specifies image for android in dark mode
+  # image_dark_android: 'assets/logo_app.png'
+  # Provides gravity for splash image for Android in dark mode
+  # android_dark_gravity_key: 'center'
+  # Use to specifies the color for the splash screen for Android in dark mode
+  # color_dark_android: '#000000'
+  # Section to specifies the configuration for the splash in Android 12+
+  android_12_and_above:
+    # Provides the background color of splash screen
+    color: '#FFFFFF'
+    # Provides custom icon to replace the default app icon
+    image: 'assets/logo_splash.png'
+    # Provides branding image which is shown under main icon image. 
+    branding_image: 'assets/scritta_splash.png'
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/logo_icon.png"
+

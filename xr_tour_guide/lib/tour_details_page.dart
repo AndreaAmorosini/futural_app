@@ -67,6 +67,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
   // Selected waypoint for the itinerary view
   int _selectedWaypointIndex = 0;
+  int _selectedWaypointIndexMappa = 0;
 
   // Animation controllers
   late AnimationController _mapAnimationController;
@@ -203,6 +204,8 @@ class _TourDetailScreenState extends State<TourDetailScreen>
     bool isItineraryView = false,
   }) {
     final bool isSelected = _selectedWaypointIndex == index && isItineraryView;
+    final bool isSelectedMappa = _selectedWaypointIndexMappa == index && !isItineraryView;
+
 
     return Marker(
       point: waypoint.location,
@@ -221,15 +224,18 @@ class _TourDetailScreenState extends State<TourDetailScreen>
             // Animate the bottom sheet to show more details
             // We can adjust the sheet size based on the selected waypoint if needed,
             // but for now, let's rely on the snap points.
-            // _sheetController.animateTo(
-            //   _sheetMinSize + 0.05,
-            //   duration: const Duration(milliseconds: 300),
-            //   curve: Curves.easeInOut,
-            // );
+            _sheetController.animateTo(
+              _sheetMinSize + 0.15,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
           } else {
             setState(() {
               for (int i = 0; i < _expandedWaypoints.length; i++) {
                 _expandedWaypoints[i] = (i == index);
+                setState(() {
+                  _selectedWaypointIndexMappa = index;
+                });
               }
             });
           }
@@ -260,10 +266,10 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
             // Marker container
             Container(
-              width: isItineraryView ? 40 : 32,
-              height: isItineraryView ? 40 : 32,
+              width: isSelected ? 60 : (isSelectedMappa ? 52 :(isItineraryView ? 40 : 32)),
+              height: isSelected ? 60 : (isSelectedMappa ? 52 : (isItineraryView ? 40 : 32)),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.blue : AppColors.primary,
+                color: isSelected | isSelectedMappa ? Colors.green.withOpacity(0.5) : AppColors.primary.withOpacity(0.5),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
@@ -280,7 +286,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: isItineraryView ? 16 : 14,
+                    fontSize: isSelected ? 25 : (isSelectedMappa ? 22 : (isItineraryView ? 16 : 14)),
                   ),
                 ),
               ),
@@ -326,7 +332,8 @@ class _TourDetailScreenState extends State<TourDetailScreen>
             mapController: _mapController,
             options: MapOptions(
               initialCenter:
-                  _waypoints[0].location, // Start with first waypoint
+                  // _waypoints[0].location, // Start with first waypoint
+                  _currentPosition != null ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude) : _waypoints[0].location,
               initialZoom: 13.0,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all,
@@ -411,6 +418,30 @@ class _TourDetailScreenState extends State<TourDetailScreen>
               ),
             ),
           ),
+
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 16,
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade700,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.camera_alt, color: Colors.white),
+                onPressed: () {
+                  // Camera functionality
+                  print(
+                    'Open camera for AR at waypoint ${_selectedWaypointIndex + 1}',
+                  );
+                },
+              ),
+            ),
+
+          ),
+
 
           // Bottom sheet with waypoint info
           DraggableScrollableSheet(
@@ -515,26 +546,26 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                                 ),
 
                                 // Camera button
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade700,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      // Camera functionality
-                                      print(
-                                        'Open camera for AR at waypoint ${_selectedWaypointIndex + 1}',
-                                      );
-                                    },
-                                  ),
-                                ),
+                                // Container(
+                                //   width: 50,
+                                //   height: 50,
+                                //   decoration: BoxDecoration(
+                                //     color: Colors.blue.shade700,
+                                //     shape: BoxShape.circle,
+                                //   ),
+                                //   child: IconButton(
+                                //     icon: const Icon(
+                                //       Icons.camera_alt,
+                                //       color: Colors.white,
+                                //     ),
+                                //     onPressed: () {
+                                //       // Camera functionality
+                                //       print(
+                                //         'Open camera for AR at waypoint ${_selectedWaypointIndex + 1}',
+                                //       );
+                                //     },
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
@@ -834,84 +865,122 @@ class _TourDetailScreenState extends State<TourDetailScreen>
             // Category, title, and rating
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    widget.category,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ...List.generate(5, (index) {
-                        if (index < widget.rating.floor()) {
-                          return const Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 18,
-                          );
-                        } else if (index < widget.rating) {
-                          return const Icon(
-                            Icons.star_half,
-                            color: Colors.amber,
-                            size: 18,
-                          );
-                        } else {
-                          return const Icon(
-                            Icons.star_border,
-                            color: Colors.amber,
-                            size: 18,
-                          );
-                        }
-                      }),
-                      const SizedBox(width: 8),
                       Text(
-                        '${widget.rating} (${widget.reviewCount.toString()})',
+                        widget.category,
                         style: const TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.textSecondary,
                         ),
                       ),
+                      Row(
+                        children: [
+                          ...List.generate(5, (index) {
+                            if (index < widget.rating.floor()) {
+                              return const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 18,
+                              );
+                            } else if (index < widget.rating) {
+                              return const Icon(
+                                Icons.star_half,
+                                color: Colors.amber,
+                                size: 18,
+                              );
+                            } else {
+                              return const Icon(
+                                Icons.star_border,
+                                color: Colors.amber,
+                                size: 18,
+                              );
+                            }
+                          }),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${widget.rating} (${widget.reviewCount.toString()})',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [ 
+                          Text(
+                            widget.tourName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 120),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            widget.location,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.tourName,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        widget.location,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 0.0),
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // AR Guide functionality
+                          print('Activate AR Guide');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 20,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          size: 36,
+                          color: Colors.white,
                         ),
                       ),
-                    ],
+                    ),
                   ),
+
                 ],
               ),
             ),
 
             // Navigation tabs (Conditionally shown here)
             Padding( // Tabs are always inside the SingleChildScrollView for About/Mappa
-              padding: const EdgeInsets.symmetric(horizontal: 17.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Row(
                 children: [
                   _buildNavTab(
@@ -924,6 +993,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       });
                     },
                   ),
+                  SizedBox(width: 10),
                   _buildNavTab(
                     icon: Icons.route_outlined,
                     label: 'Itinerario',
@@ -934,6 +1004,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       });
                     },
                   ),
+                  SizedBox(width: 10),
                   if (widget.category != "Interno" && widget.category != "Cibo")
                     _buildNavTab(
                       icon: Icons.map_outlined,
@@ -1160,10 +1231,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       child: FlutterMap(
                         mapController: _mapController,
                         options: MapOptions(
-                          initialCenter: LatLng(
-                            _currentPosition?.latitude ?? widget.latitude,
-                            _currentPosition?.longitude ?? widget.longitude,
-                          ),
+                          initialCenter: _waypoints[0].location,
                           initialZoom: 13.0,
                           interactionOptions: const InteractionOptions(
                             flags: InteractiveFlag.all,
@@ -1231,6 +1299,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                   subtitle: waypoint.subtitle,
                   description: waypoint.description,
                   images: waypoint.images,
+                  tourCategory: widget.category,
                 );
               }).toList(),
             ],
@@ -1243,6 +1312,10 @@ class _TourDetailScreenState extends State<TourDetailScreen>
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white, // o AppColors.background
+        toolbarHeight: 0.1,
+      ),
       body: mainContent, // Directly use the conditionally rendered content
     );
   }
@@ -1299,6 +1372,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
     required String subtitle,
     required String description,
     required List<String> images,
+    required String tourCategory,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -1324,7 +1398,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                 onTap: () {
                   setState(() {
                     _expandedWaypoints[index] = !_expandedWaypoints[index];
-                    if (_selectedTab == 'Itinerario') {
+                    if (_selectedTab == 'Itinerario' && (tourCategory != "Interno" && tourCategory != "Cibo")) {
                       // Center map on waypoint when expanded in Mappa tab
                       _centerMap(_waypoints[index].location);
                     }
@@ -1452,34 +1526,34 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       ),
 
                     // AR Guide button (only for the first waypoint in this example)
-                    if (index == 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Center(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // AR Guide functionality
-                              print(
-                                'Activate AR Guide for Waypoint ${index + 1}',
-                              );
-                            },
-                            icon: const Icon(Icons.camera_alt),
-                            label: const Text('Attiva Guida AR'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              elevation: 2,
-                            ),
-                          ),
-                        ),
-                      ),
+                    // if (index == 0)
+                    //   Padding(
+                    //     padding: const EdgeInsets.only(top: 8.0),
+                    //     child: Center(
+                    //       child: ElevatedButton.icon(
+                    //         onPressed: () {
+                    //           // AR Guide functionality
+                    //           print(
+                    //             'Activate AR Guide for Waypoint ${index + 1}',
+                    //           );
+                    //         },
+                    //         icon: const Icon(Icons.camera_alt),
+                    //         label: const Text('Attiva Guida AR'),
+                    //         style: ElevatedButton.styleFrom(
+                    //           backgroundColor: AppColors.primary,
+                    //           foregroundColor: Colors.white,
+                    //           padding: const EdgeInsets.symmetric(
+                    //             horizontal: 20,
+                    //             vertical: 12,
+                    //           ),
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(24),
+                    //           ),
+                    //           elevation: 2,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
                   ],
                 ),
               ),

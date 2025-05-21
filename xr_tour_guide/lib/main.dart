@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart'; // Import for debugPaintSizeEnabled
 import 'package:flutter/services.dart'; // Import for SystemChrome
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:splash_master/splash_master.dart"; // Import for SplashMaster
 
 // Import the external files
 import 'app_colors.dart';
 import 'travel_list_item_card.dart';
 import 'tour_details_page.dart';
+import "category_detail_screen.dart";
+import "search_screen.dart";
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
   // Ensure the status bar is transparent and the UI can extend behind it
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Make status bar transparent
+      statusBarColor: Colors.black, // Make status bar transparent
       statusBarIconBrightness:
           Brightness.dark, // Set icons to dark for light backgrounds
       statusBarBrightness:
           Brightness.light, // Set brightness for iOS status bar
     ),
   );
+    SplashMaster.resume();
 
   runApp(const MyApp());
 }
@@ -65,43 +69,112 @@ class TravelExplorerScreen extends StatelessWidget {
     required String imagePath,
     EdgeInsets? margin,
   }) {
-    return Container(
-      // Responsive width for each category item.
-      width: width,
-      // Add left margin to the first item and right margin to all items.
-      margin:
-          margin ?? EdgeInsets.only(left: index == 0 ? 20.0 : 0.0, right: 10.0),
-      decoration: BoxDecoration(
-        // Rounded corners for the container.
-        borderRadius: BorderRadius.circular(10.0),
-        // Use the provided image path for the background
-        image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
-      ),
-      // Use a Stack to place text on top of the background.
-      child: Stack(
-        children: [
-          // Add a dark overlay to make text more readable on top of images.
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: AppColors.darkOverlay, // Using AppColors for the overlay
+    // Sample tour data for this category
+    final List<Map<String, dynamic>> categoryTours = [
+      {
+        'imagePath': 'assets/acquedotto.jpg',
+        'title': 'Exploring the Wonders of Sri Lanka',
+        'subcategory': 'Outdoor Adventures',
+        'rating': 4.8,
+        'reviewCount': 1550,
+        'hasBadge': false,
+        'isFavorite': false,
+      },
+      {
+        'imagePath': 'assets/acquedotto.jpg',
+        'title': 'Alpine Europe in 12 Days',
+        'subcategory': 'Nature',
+        'rating': 4.7,
+        'reviewCount': 1250,
+        'hasBadge': false,
+        'isFavorite': false,
+      },
+      {
+        'imagePath': 'assets/acquedotto.jpg',
+        'title': 'Self-Guided Hiking Tours',
+        'subcategory': 'Nature',
+        'rating': 4.5,
+        'reviewCount': 800,
+        'hasBadge': false,
+        'isFavorite': false,
+      },
+      {
+        'imagePath': 'assets/acquedotto.jpg',
+        'title': 'Provence Lavender Tours',
+        'subcategory': 'Outdoor Adventures',
+        'rating': 4.3,
+        'reviewCount': 900,
+        'hasBadge': false,
+        'isFavorite': false,
+      },
+      {
+        'imagePath': 'assets/acquedotto.jpg',
+        'title': 'Cycling Austria Tour',
+        'subcategory': 'Sport & Adventures',
+        'rating': 4.0,
+        'reviewCount': 70,
+        'hasBadge': true,
+        'isFavorite': true,
+      },
+    ];
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => CategoryDetailScreen(
+                  categoryName: categoryName,
+                  tours: categoryTours,
+                ),
+          ),
+        );
+      },
+      child: Container(
+        // Responsive width for each category item.
+        width: width,
+        // Add left margin to the first item and right margin to all items.
+        margin:
+            margin ??
+            EdgeInsets.only(left: index == 0 ? 20.0 : 0.0, right: 10.0),
+        decoration: BoxDecoration(
+          // Rounded corners for the container.
+          borderRadius: BorderRadius.circular(10.0),
+          // Use the provided image path for the background
+          image: DecorationImage(
+            image: AssetImage(imagePath),
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Use a Stack to place text on top of the background.
+        child: Stack(
+          children: [
+            // Add a dark overlay to make text more readable on top of images.
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color:
+                      AppColors.darkOverlay, // Using AppColors for the overlay
+                ),
               ),
             ),
-          ),
-          // Center the category name text.
-          Center(
-            child: Text(
-              categoryName, // Use the provided category name
-              style: const TextStyle(
-                color:
-                    Colors.white, // Text color for readability on dark overlay
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            // Center the category name text.
+            Center(
+              child: Text(
+                categoryName, // Use the provided category name
+                style: const TextStyle(
+                  color:
+                      Colors
+                          .white, // Text color for readability on dark overlay
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -123,9 +196,22 @@ class TravelExplorerScreen extends StatelessWidget {
     return Scaffold(
       // Extends the body to be behind the app bar. This is crucial for the
       // image to go all the way to the top of the screen, under the status bar.
-      extendBodyBehindAppBar: true,
-      // Remove the app bar since we want the top bar to scroll with content
-      appBar: null,
+      extendBodyBehindAppBar: false,
+      // App Bar White to avoid confusion with the background image.
+      appBar: AppBar(
+          title: Text(
+            "XRTOURGUIDE",
+            style: TextStyle(
+              fontSize: screenWidth * 0.06,
+              fontWeight: FontWeight.bold,
+              fontFamily: "point_panther", // opzionale, se vuoi il font custom
+            ),
+          ),
+          backgroundColor: Colors.white, // o AppColors.background
+          foregroundColor: Colors.black, // colore testo/icona
+          elevation: 0, // nessuna ombra, stile moderno
+          centerTitle: true, // titolo centrato
+        ),
       // The main content of the screen. Wrapped in SingleChildScrollView to make it scrollable.
       body: SingleChildScrollView(
         // Arrange children vertically.
@@ -139,7 +225,7 @@ class TravelExplorerScreen extends StatelessWidget {
                 // Background image container
                 Container(
                   // Set height as a fraction of the screen height for responsiveness.
-                  height: screenHeight * 0.3, // Takes up 30% of screen height
+                  height: screenHeight * 0.25, // Takes up 30% of screen height
                   // Set width to the full screen width.
                   width: screenWidth,
                   decoration: const BoxDecoration(
@@ -183,45 +269,40 @@ class TravelExplorerScreen extends StatelessWidget {
                 ),
 
                 // Title bar that scrolls with content
-                Positioned(
-                  top:
-                      MediaQuery.of(context).padding.top +
-                      20, // Add padding for status bar
-                  left: 0,
-                  right: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Container(
-                      // Wrap the Row in a Container for the semi-transparent panel
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                        horizontal: 12.0,
-                      ),
-                      // child: SizedBox(
-                      //   width: screenWidth * 0.17, // Set the desired width
-                      //   height: screenHeight * 0.2, // Set the desired height
-                      //   child: Image(image: AssetImage('assets/logo_app.png'),),
-                      // ),
-                      child: SizedBox(
-                        height: screenHeight * 0.225,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "XRTOURGUIDE",
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.08,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black.withOpacity(0.8),
-                                fontFamily: "point_panther",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   top:
+                //       MediaQuery.of(context).padding.top +
+                //       20, // Add padding for status bar
+                //   left: 0,
+                //   right: 0,
+                //   child: Padding(
+                //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                //     child: Container(
+                //       // Wrap the Row in a Container for the semi-transparent panel
+                //       padding: const EdgeInsets.symmetric(
+                //         vertical: 8.0,
+                //         horizontal: 12.0,
+                //       ),
+                //       child: SizedBox(
+                //         height: screenHeight * 0.225,
+                //         child: Column(
+                //           mainAxisAlignment: MainAxisAlignment.end,
+                //           children: [
+                //             Text(
+                //               "XRTOURGUIDE",
+                //               style: TextStyle(
+                //                 fontSize: screenWidth * 0.08,
+                //                 fontWeight: FontWeight.bold,
+                //                 color: Colors.black.withOpacity(0.8),
+                //                 fontFamily: "point_panther",
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
 
@@ -232,30 +313,94 @@ class TravelExplorerScreen extends StatelessWidget {
                 horizontal: 20.0,
                 vertical: 10.0,
               ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'What do you want to see?', // Placeholder text
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color:
-                        AppColors
-                            .textSecondary, // Using AppColors for icon color
-                  ), // Search icon at the beginning
-                  // Define the border style. OutlineInputBorder creates a border around the field.
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      30.0,
-                    ), // Rounded corners
-                    borderSide: BorderSide.none, // No visible border line
+              // child: TextField(
+              //   decoration: InputDecoration(
+              //     hintText: 'What do you want to see?', // Placeholder text
+              //     prefixIcon: Icon(
+              //       Icons.search,
+              //       color:
+              //           AppColors
+              //               .textSecondary, // Using AppColors for icon color
+              //     ), // Search icon at the beginning
+              //     // Define the border style. OutlineInputBorder creates a border around the field.
+              //     border: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(
+              //         30.0,
+              //       ), // Rounded corners
+              //       borderSide: BorderSide.none, // No visible border line
+              //     ),
+              //     filled: true, // Fill the background with a color
+              //     fillColor:
+              //         AppColors
+              //             .searchBarBackground, // Using AppColors for search bar background
+              //     // Adjust content padding inside the TextField.
+              //     contentPadding: const EdgeInsets.symmetric(
+              //       vertical: 0,
+              //       horizontal: 20,
+              //     ),
+              //   ),
+              // ),
+              child: GestureDetector(
+                onTap: () {
+                  // Navigate to the search screen with a page route animation
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => const SearchScreen(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        // Define custom transition animations
+                        const begin = Offset(0.0, 0.05);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        
+                        // Create a slide animation for the new screen
+                        var slideAnimation = Tween(begin: begin, end: end).animate(
+                          CurvedAnimation(parent: animation, curve: curve),
+                        );
+                        
+                        // Create a fade animation for the new screen
+                        var fadeAnimation = Tween(begin: 0.0, end: 1.0).animate(
+                          CurvedAnimation(parent: animation, curve: curve),
+                        );
+                        
+                        // Apply both animations
+                        return FadeTransition(
+                          opacity: fadeAnimation,
+                          child: SlideTransition(
+                            position: slideAnimation,
+                            child: child,
+                          ),
+                        );
+                      },
+                      // Make the transition slightly faster
+                      transitionDuration: const Duration(milliseconds: 250),
+                    ),
+                  );
+                },
+                // Create a non-editable search bar that looks like a TextField
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.searchBarBackground,
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
-                  filled: true, // Fill the background with a color
-                  fillColor:
-                      AppColors
-                          .searchBarBackground, // Using AppColors for search bar background
-                  // Adjust content padding inside the TextField.
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 0,
-                    horizontal: 20,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'What do you want to see?',
+                          style: TextStyle(
+                            color: AppColors.textSecondary.withOpacity(0.7),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -323,6 +468,11 @@ class TravelExplorerScreen extends StatelessWidget {
                             cardWidth:
                                 screenWidth *
                                 0.6, // Responsive width for the card
+                            imageHeight: 140,
+                            category: "Natura",
+                            rating: 4.5,
+                            reviewCount: 675,
+
                             onTap: () {
                               // Handle card tap
                               // print('Tapped on destination ${index + 1}');
@@ -489,10 +639,45 @@ class TravelExplorerScreen extends StatelessWidget {
                                 'A delightful culinary experience.', // Placeholder description
                             cardWidth:
                                 screenWidth *
-                                0.7, // Responsive width for the card
+                                0.6, // Responsive width for the card
+                            imageHeight: 180,
+                            category: "Cibo",
+                            rating: 4.5,
+                            reviewCount: 675,
+
                             onTap: () {
                               // Handle card tap
-                              print('Tapped on culinary event ${index + 1}');
+                              // print('Tapped on destination ${index + 1}');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => TourDetailScreen(
+                                        tourId: 'tour_${index + 1}',
+                                        tourName:
+                                            index == 0
+                                                ? 'Cucina Tipica'
+                                                : 'Destination ${index + 1}',
+                                        location:
+                                            index == 0
+                                                ? 'Avellino, Campania'
+                                                : 'Location ${index + 1}',
+                                        rating:
+                                            index == 0
+                                                ? 4.5
+                                                : 4.0 + (index * 0.1),
+                                        reviewCount:
+                                            index == 0
+                                                ? 675
+                                                : 100 + (index * 25),
+                                        images: [
+                                          "assets/cibo_example.jpg",
+                                        ],
+                                        category: 'Cibo',
+                                        description: 'Discover the beauty and history of this amazing destination with our guided tour.',
+                                      ),
+                                ),
+                              );
                             },
                           ),
                         );
