@@ -96,9 +96,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   // Navigate to home/explore screen
   void _navigateToExplore(BuildContext context) {
     // Navigate to TravelExplorerScreen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const TravelExplorerScreen()),
-    );
+    // Navigator.of(context).pushReplacement(
+    //   MaterialPageRoute(builder: (context) => const TravelExplorerScreen()),
+    // );
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
   }
 
   // Show logout confirmation bottom sheet
