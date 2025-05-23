@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'dart:math' as math;
 import 'app_colors.dart';
+import 'camera_screen.dart'; // Import your camera screen
 
 // Define a class for your waypoints
 class Waypoint {
@@ -321,6 +322,9 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     // Conditionally render the content based on the selected tab
     Widget mainContent;
     if (_selectedTab == 'Mappa') {
@@ -389,9 +393,11 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
           // Back button (positioned on top of the map)
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: MediaQuery.of(context).padding.top - 15,
             left: 16,
             child: Container(
+              width: screenWidth * 0.15,
+              height: screenHeight * 0.07,
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -407,6 +413,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                 icon: const Icon(
                   Icons.arrow_back,
                   color: AppColors.textPrimary,
+                  size: 28,
                 ),
                 onPressed: () {
                   // Go back to previous screen or tab
@@ -420,19 +427,23 @@ class _TourDetailScreenState extends State<TourDetailScreen>
           ),
 
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: MediaQuery.of(context).padding.top - 15,
             right: 16,
             child: Container(
-              width: 50,
-              height: 50,
+              width: screenWidth * 0.15,
+              height: screenHeight * 0.07,
               decoration: BoxDecoration(
                 color: Colors.blue.shade700,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.white),
+                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 28,),
                 onPressed: () {
-                  // Camera functionality
+                  // TODO: Camera functionality
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ARCameraScreen()),
+                  );
                   print(
                     'Open camera for AR at waypoint ${_selectedWaypointIndex + 1}',
                   );
@@ -544,28 +555,6 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                                     ],
                                   ),
                                 ),
-
-                                // Camera button
-                                // Container(
-                                //   width: 50,
-                                //   height: 50,
-                                //   decoration: BoxDecoration(
-                                //     color: Colors.blue.shade700,
-                                //     shape: BoxShape.circle,
-                                //   ),
-                                //   child: IconButton(
-                                //     icon: const Icon(
-                                //       Icons.camera_alt,
-                                //       color: Colors.white,
-                                //     ),
-                                //     onPressed: () {
-                                //       // Camera functionality
-                                //       print(
-                                //         'Open camera for AR at waypoint ${_selectedWaypointIndex + 1}',
-                                //       );
-                                //     },
-                                //   ),
-                                // ),
                               ],
                             ),
                           ),
@@ -804,9 +793,11 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
                 // Back button
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 10,
+                  top: MediaQuery.of(context).padding.top - 15,
                   left: 16,
                   child: Container(
+                    width: screenWidth * 0.15,
+                    height: screenHeight * 0.07,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -822,6 +813,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       icon: const Icon(
                         Icons.arrow_back,
                         color: AppColors.textPrimary,
+                        size: 28
                       ),
                       onPressed: () => Navigator.pop(context),
                     ),
@@ -912,7 +904,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      // const SizedBox(height: 8),
                       Row(
                         children: [ 
                           Text(
@@ -923,7 +915,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                               color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(width: 120),
+                          const SizedBox(width: 135),
                         ],
                       ),
                       Row(
@@ -946,34 +938,39 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 0.0),
+                    padding: const EdgeInsets.only(top: 20.0),
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          // AR Guide functionality
+                          // TODO: AR Guide functionality
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ARCameraScreen(),
+                            ),
+                          );
                           print('Activate AR Guide');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 20,
+                            horizontal: 30,
+                            vertical: 10,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          elevation: 2,
+                          elevation: 0,
                         ),
                         child: const Icon(
                           Icons.camera_alt,
-                          size: 36,
+                          size: 28,
                           color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
