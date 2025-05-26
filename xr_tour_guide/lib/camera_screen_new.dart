@@ -6,21 +6,23 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:markdown_widget/markdown_widget.dart'; // Add this import
 import 'dart:async';
 import 'dart:math';
 
 // Enum for recognition states
 enum RecognitionState {
-  ready,    // Initial state - show camera button
+  ready, // Initial state - show camera button
   scanning, // Currently scanning
-  success,  // Recognition successful
-  failure,  // Recognition failed
+  success, // Recognition successful
+  failure, // Recognition failed
 }
 
 class ARCameraScreen extends StatefulWidget {
-  // Landmark data passed to the screen
+  // Enhanced landmark data to include markdown content
   final String landmarkName;
   final String landmarkDescription;
+  final String landmarkMarkdownContent; // New field for markdown content
   final List<String> landmarkImages;
   final double latitude;
   final double longitude;
@@ -29,7 +31,64 @@ class ARCameraScreen extends StatefulWidget {
     Key? key,
     this.landmarkName = "Santuario di Montevergine",
     this.landmarkDescription =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    // Example markdown content with various formatting
+    this.landmarkMarkdownContent = '''
+# Santuario di Montevergine
+
+## History
+The **Santuario di Montevergine** is a revered pilgrimage site located in the mountains of Campania, Italy. Founded in the 12th century by Saint William of Vercelli, this sacred sanctuary has been a beacon of spiritual devotion for over 800 years.
+
+### Key Historical Facts
+- **Founded**: 1119 AD by Saint William of Vercelli
+- **Architectural Style**: Romanesque with Gothic influences
+- **Elevation**: 1,270 meters above sea level
+- **UNESCO Recognition**: Part of the "Longobards in Italy" World Heritage Site
+
+## Religious Significance
+The sanctuary is dedicated to the *Madonna di Montevergine*, also known as **Mamma Schiavona** (Mother of Slaves). The miraculous icon of the Virgin Mary attracts thousands of pilgrims annually, especially during the traditional pilgrimage on September 8th.
+
+> "This sacred mountain has witnessed centuries of prayer, devotion, and miracles." - Cardinal Giuseppe Betori
+
+## Architecture & Art
+The sanctuary complex includes:
+
+1. **The Basilica** - Houses the miraculous icon
+2. **The Museum** - Contains precious religious artifacts
+3. **The Library** - Preserves ancient manuscripts
+4. **The Guesthouse** - Accommodates pilgrims
+
+### Notable Features
+- Ancient frescoes dating back to the 13th century
+- Baroque altar with intricate gold decorations
+- Historic pipe organ from the 18th century
+- Medieval bell tower with panoramic views
+
+## Natural Environment
+Situated within the **Monti Picentini Regional Park**, the sanctuary offers:
+
+- Breathtaking mountain vistas
+- Rich biodiversity with endemic flora
+- Hiking trails for nature enthusiasts
+- Clean mountain air and serene atmosphere
+
+## Pilgrimage Traditions
+### The Great Pilgrimage
+Every year on **September 8th**, thousands of faithful undertake the traditional pilgrimage, walking through the night to reach the sanctuary at dawn. This ancient tradition symbolizes the spiritual journey from darkness to light.
+
+### Special Celebrations
+- **Easter Week**: Elaborate processions and ceremonies
+- **Assumption Day** (August 15): Special blessing of the faithful
+- **Christmas**: Unique nativity scenes and midnight mass
+
+---
+
+*For more information, visit our official website or contact the sanctuary directly.*
+
+**Address**: Via Santuario, 1, 83013 Mercogliano AV, Italy  
+**Phone**: +39 0825 72924  
+**Website**: [www.santuariodimontevergine.it](https://www.santuariodimontevergine.it)
+''',
     this.landmarkImages = const [
       'https://picsum.photos/300/200?random=1',
       'https://picsum.photos/300/200?random=2',
@@ -42,7 +101,6 @@ class ARCameraScreen extends StatefulWidget {
   @override
   State<ARCameraScreen> createState() => _ARCameraScreenState();
 }
-
 class _ARCameraScreenState extends State<ARCameraScreen>
     with TickerProviderStateMixin {
   // Camera controller
@@ -79,12 +137,16 @@ class _ARCameraScreenState extends State<ARCameraScreen>
   // Manual animation progress for AR overlays
   double _arOverlayProgress = 0.0;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
     _initializeCamera();
     _getCurrentLocation();
     _initializeAnimations();
+
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -94,6 +156,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
     _pulseAnimationController.dispose();
     _successAnimationController.dispose();
     _failureAnimationController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -127,43 +190,39 @@ class _ARCameraScreenState extends State<ARCameraScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _pulseAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     // Success animation
     _successAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    _successAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _successAnimationController,
-      curve: Curves.easeOut, // Changed from Curves.elasticOut
-    ));
+    _successAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successAnimationController,
+        curve: Curves.easeOut, // Changed from Curves.elasticOut
+      ),
+    );
 
     // Add listener to debug animation progress
-    _successAnimation.addListener(() {
-    });
+    _successAnimation.addListener(() {});
 
     // Failure animation
     _failureAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _failureAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _failureAnimationController,
-      curve: Curves.bounceOut,
-    ));
+    _failureAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _failureAnimationController,
+        curve: Curves.bounceOut,
+      ),
+    );
   }
 
   // Get current location for the map
@@ -212,11 +271,11 @@ class _ARCameraScreenState extends State<ARCameraScreen>
       setState(() {
         _recognitionState = RecognitionState.success;
       });
-      
+
       // Start the central button animation
       _successAnimationController.reset();
       _successAnimationController.forward();
-      
+
       // Start AR overlays with manual timer-based animation
       _startAROverlayAnimation();
 
@@ -231,7 +290,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         _recognitionState = RecognitionState.failure;
       });
       _failureAnimationController.forward();
-  
+
       // Auto-reset after 3 seconds
       Timer(const Duration(seconds: 3), () {
         if (mounted) {
@@ -244,18 +303,17 @@ class _ARCameraScreenState extends State<ARCameraScreen>
   // Manual AR overlay animation using Timer
   void _startAROverlayAnimation() {
     _arOverlayProgress = 0.0;
-    
+
     Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (!mounted || _recognitionState != RecognitionState.success) {
         timer.cancel();
         return;
       }
-      
+
       setState(() {
         _arOverlayProgress += 0.05; // Increase by 5% every 50ms
       });
-      
-      
+
       if (_arOverlayProgress >= 1.0) {
         _arOverlayProgress = 1.0;
         timer.cancel();
@@ -267,7 +325,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
   void _resetRecognition() async {
     // Reset manual AR overlay progress
     _arOverlayProgress = 0.0;
-    
+
     // Animate out current state
     if (_recognitionState == RecognitionState.success) {
       await _successAnimationController.reverse();
@@ -297,9 +355,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         height: double.infinity,
         color: Colors.black,
         child: const Center(
-          child: CircularProgressIndicator(
-            color: Colors.white,
-          ),
+          child: CircularProgressIndicator(color: Colors.white),
         ),
       );
     }
@@ -319,10 +375,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         transitionBuilder: (Widget child, Animation<double> animation) {
           return ScaleTransition(
             scale: animation,
-            child: FadeTransition(
-              opacity: animation,
-              child: child,
-            ),
+            child: FadeTransition(opacity: animation, child: child),
           );
         },
         child: Container(
@@ -366,66 +419,12 @@ class _ARCameraScreenState extends State<ARCameraScreen>
               ),
             ],
           ),
-          child: const Icon(
-            Icons.camera_alt,
-            color: Colors.white,
-            size: 40,
-          ),
+          child: const Icon(Icons.camera_alt, color: Colors.white, size: 40),
         ),
       ),
     );
   }
 
-// Widget _buildReadyState() {
-//     final double innerButtonSize = 80.0;
-//     // The size of the separate semi-transparent circle behind the button
-//     final double outerCircleSize =
-//         innerButtonSize * 3.5; // Adjust multiplier as needed for desired size
-
-//     return Center(
-//       child: Stack(
-//         alignment: Alignment.center, // Center all children in the stack
-//         children: [
-//           // The semi-transparent circle (first, so it's behind)
-//           Container(
-//             width: outerCircleSize,
-//             height: outerCircleSize,
-//             decoration: BoxDecoration(
-//               color: Colors.black.withOpacity(
-//                 0.2,
-//               ), // Semi-transparent black as seen in the image
-//               shape: BoxShape.circle,
-//             ),
-//           ),
-//           // The camera button (second, so it's on top)
-//           GestureDetector(
-//             onTap: _startRecognition,
-//             child: Container(
-//               width: innerButtonSize,
-//               height: innerButtonSize,
-//               decoration: BoxDecoration(
-//                 color: Colors.blue, // Main button color
-//                 shape: BoxShape.circle,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.blue.withOpacity(0.3),
-//                     blurRadius: 20,
-//                     spreadRadius: 5,
-//                   ),
-//                 ],
-//               ),
-//               child: const Icon(
-//                 Icons.camera_alt,
-//                 color: Colors.white,
-//                 size: 40,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-  
   // Build scanning state (pulsing camera button)
   Widget _buildScanningState() {
     return Center(
@@ -448,11 +447,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.search,
-                color: Colors.white,
-                size: 40,
-              ),
+              child: const Icon(Icons.search, color: Colors.white, size: 40),
             ),
           );
         },
@@ -487,7 +482,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Text Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
+        },
       }, // Top
       {
         'angle': -pi / 4.5,
@@ -498,7 +493,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Link Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
+        },
       }, // Top-right
       {
         'angle': pi / 4.5,
@@ -509,7 +504,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Image Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
+        },
       }, // Bottom-right
       {
         'angle': pi / 2,
@@ -520,7 +515,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Video Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
+        },
       }, // Bottom
       {
         'angle': 2 * pi / 2.5,
@@ -531,7 +526,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Doc Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
+        },
       }, // Bottom-left
       {
         'angle': -2 * pi / 2.5,
@@ -542,8 +537,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
         'onTapAction': () {
           print('Audio Info icon tapped!');
           // TODO: Implement action for Text Info (e.g., show more details)
-        }
-
+        },
       }, // Top-left
     ];
 
@@ -620,50 +614,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
     );
   }
 
-// Simplified AR overlay for debugging
-// Widget _buildSimpleAROverlay({
-//   required double delay,
-//   required Color color,
-//   required String emoji,
-// }) {
-//   // Use manual progress instead of animation controller
-//   double opacity = _arOverlayProgress >= delay ? 1.0 : 0.0;
-//   double scale = _arOverlayProgress >= delay ? 1.0 : 0.0;
-    
-//   return Transform.scale(
-//     scale: scale,
-//     child: Opacity(
-//       opacity: opacity,
-//       child: Container(
-//         width: 50,
-//         height: 50,
-//         decoration: BoxDecoration(
-//           color: color,
-//           borderRadius: BorderRadius.circular(8),
-//           border: Border.all(color: Colors.white, width: 2), // Add border for visibility
-//           boxShadow: [
-//             BoxShadow(
-//               color: color.withOpacity(0.3),
-//               blurRadius: 10,
-//               spreadRadius: 2,
-//             ),
-//           ],
-//           ),
-//         child: Center(
-//           child: Text(
-//             emoji,
-//             style: const TextStyle(
-//               fontSize: 24,
-//               color: Colors.white,
-//             ),
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
-Widget _buildSimpleAROverlay({
+  Widget _buildSimpleAROverlay({
     required double delay,
     required String assetPath, // Path to your custom icon in the assets folder
     required bool isVisible, // Controls if the overlay is shown
@@ -721,10 +672,11 @@ Widget _buildSimpleAROverlay({
           // Add shake effect
           double shake = 0;
           if (_failureAnimation.value > 0.1 && _failureAnimation.value < 0.9) {
-            shake = (sin(_failureAnimation.value * 20) * 3) * 
-                    (1 - _failureAnimation.value); // Diminishing shake
+            shake =
+                (sin(_failureAnimation.value * 20) * 3) *
+                (1 - _failureAnimation.value); // Diminishing shake
           }
-          
+
           return Transform.translate(
             offset: Offset(shake, 0),
             child: Transform.scale(
@@ -741,11 +693,12 @@ Widget _buildSimpleAROverlay({
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Color.lerp(
-                        Colors.blue.withOpacity(0.3),
-                        Colors.red.withOpacity(0.3),
-                        _failureAnimation.value,
-                      )!,
+                      color:
+                          Color.lerp(
+                            Colors.blue.withOpacity(0.3),
+                            Colors.red.withOpacity(0.3),
+                            _failureAnimation.value,
+                          )!,
                       blurRadius: 20 + (10 * _failureAnimation.value),
                       spreadRadius: 5 + (5 * _failureAnimation.value),
                     ),
@@ -762,10 +715,10 @@ Widget _buildSimpleAROverlay({
                 ),
               ),
             ),
-        );
-      },
-    ),
-  );
+          );
+        },
+      ),
+    );
   }
 
   // Build AR overlay icon
@@ -789,10 +742,7 @@ Widget _buildSimpleAROverlay({
         child: Center(
           child: Text(
             emoji,
-            style: const TextStyle(
-              fontSize: 24,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 24, color: Colors.white),
           ),
         ),
       ),
@@ -939,6 +889,150 @@ Widget _buildSimpleAROverlay({
   }
 
   // Build the draggable bottom sheet with landmark information
+  // Widget _buildDraggableSheet(BuildContext context) {
+  //   return DraggableScrollableSheet(
+  //     controller: _sheetController,
+  //     initialChildSize: _initialSheetSize,
+  //     minChildSize: _minSheetSize,
+  //     maxChildSize: _maxSheetSize,
+  //     builder: (context, scrollController) {
+  //       return Container(
+  //         decoration: const BoxDecoration(
+  //           color: AppColors.background,
+  //           borderRadius: BorderRadius.only(
+  //             topLeft: Radius.circular(20),
+  //             topRight: Radius.circular(20),
+  //           ),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: AppColors.cardShadow,
+  //               blurRadius: 10,
+  //               offset: Offset(0, -2),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Column(
+  //           children: [
+  //             // Drag handle
+  //             Container(
+  //               margin: const EdgeInsets.only(top: 12, bottom: 8),
+  //               width: 40,
+  //               height: 4,
+  //               decoration: BoxDecoration(
+  //                 color: AppColors.divider,
+  //                 borderRadius: BorderRadius.circular(2),
+  //               ),
+  //             ),
+
+  //             // Scrollable content
+  //             Expanded(
+  //               child: SingleChildScrollView(
+  //                 controller: scrollController,
+  //                 padding: const EdgeInsets.symmetric(horizontal: 20),
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     // Landmark name/title
+  //                     Text(
+  //                       widget.landmarkName,
+  //                       style: const TextStyle(
+  //                         fontSize: 24,
+  //                         fontWeight: FontWeight.bold,
+  //                         color: AppColors.textPrimary,
+  //                       ),
+  //                     ),
+
+  //                     // const SizedBox(height: 20),
+
+  //                     // // Recognition status indicator
+  //                     // Container(
+  //                     //   padding: const EdgeInsets.symmetric(
+  //                     //     horizontal: 12,
+  //                     //     vertical: 8,
+  //                     //   ),
+  //                     //   decoration: BoxDecoration(
+  //                     //     color: _getStatusColor().withOpacity(0.1),
+  //                     //     borderRadius: BorderRadius.circular(20),
+  //                     //     border: Border.all(
+  //                     //       color: _getStatusColor(),
+  //                     //       width: 1,
+  //                     //     ),
+  //                     //   ),
+  //                     //   child: Row(
+  //                     //     mainAxisSize: MainAxisSize.min,
+  //                     //     children: [
+  //                     //       Icon(
+  //                     //         _getStatusIcon(),
+  //                     //         color: _getStatusColor(),
+  //                     //         size: 16,
+  //                     //       ),
+  //                     //       const SizedBox(width: 8),
+  //                     //       Text(
+  //                     //         _getStatusText(),
+  //                     //         style: TextStyle(
+  //                     //           color: _getStatusColor(),
+  //                     //           fontWeight: FontWeight.w500,
+  //                     //           fontSize: 14,
+  //                     //         ),
+  //                     //       ),
+  //                     //     ],
+  //                     //   ),
+  //                     // ),
+  //                     const SizedBox(height: 20),
+
+  //                     // Description section header
+  //                     const Text(
+  //                       'Description',
+  //                       style: TextStyle(
+  //                         fontSize: 18,
+  //                         fontWeight: FontWeight.w600,
+  //                         color: AppColors.textPrimary,
+  //                       ),
+  //                     ),
+
+  //                     const SizedBox(height: 12),
+
+  //                     // Description text
+  //                     Text(
+  //                       widget.landmarkDescription,
+  //                       style: const TextStyle(
+  //                         fontSize: 16,
+  //                         height: 1.5,
+  //                         color: AppColors.textSecondary,
+  //                       ),
+  //                     ),
+
+  //                     const SizedBox(height: 24),
+
+  //                     // Photos section
+  //                     const Text(
+  //                       'Photos',
+  //                       style: TextStyle(
+  //                         fontSize: 18,
+  //                         fontWeight: FontWeight.w600,
+  //                         color: AppColors.textPrimary,
+  //                       ),
+  //                     ),
+
+  //                     const SizedBox(height: 12),
+
+  //                     // Photo grid
+  //                     _buildPhotoGrid(),
+
+  //                     // Add some bottom padding for better scrolling experience
+  //                     const SizedBox(height: 40),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Enhanced build method for the draggable sheet with markdown support
   Widget _buildDraggableSheet(BuildContext context) {
     return DraggableScrollableSheet(
       controller: _sheetController,
@@ -974,112 +1068,278 @@ Widget _buildSimpleAROverlay({
                 ),
               ),
 
-              // Scrollable content
+              // Tab bar for switching between different content views
+              TabBar(
+                controller: _tabController,
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.textSecondary,
+                indicatorColor: AppColors.primary,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                tabs: const [
+                  Tab(text: 'Overview'),
+                  Tab(text: 'Details'),
+                  Tab(text: 'Photos'),
+                ],
+              ),
+
+              // Scrollable tab content
               Expanded(
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Landmark name/title
-                      Text(
-                        widget.landmarkName,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Overview tab - basic information
+                    _buildOverviewTab(scrollController),
 
-                      // const SizedBox(height: 20),
-
-                      // // Recognition status indicator
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 12,
-                      //     vertical: 8,
-                      //   ),
-                      //   decoration: BoxDecoration(
-                      //     color: _getStatusColor().withOpacity(0.1),
-                      //     borderRadius: BorderRadius.circular(20),
-                      //     border: Border.all(
-                      //       color: _getStatusColor(),
-                      //       width: 1,
-                      //     ),
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisSize: MainAxisSize.min,
-                      //     children: [
-                      //       Icon(
-                      //         _getStatusIcon(),
-                      //         color: _getStatusColor(),
-                      //         size: 16,
-                      //       ),
-                      //       const SizedBox(width: 8),
-                      //       Text(
-                      //         _getStatusText(),
-                      //         style: TextStyle(
-                      //           color: _getStatusColor(),
-                      //           fontWeight: FontWeight.w500,
-                      //           fontSize: 14,
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
-                      const SizedBox(height: 20),
-
-                      // Description section header
-                      const Text(
-                        'Description',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Description text
-                      Text(
-                        widget.landmarkDescription,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.5,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Photos section
-                      const Text(
-                        'Photos',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Photo grid
-                      _buildPhotoGrid(),
-
-                      // Add some bottom padding for better scrolling experience
-                      const SizedBox(height: 40),
-                    ],
-                  ),
+                    // Details tab - markdown content
+                    _buildMarkdownTab(scrollController),
+                  ],
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  // Build the overview tab with basic landmark information
+  Widget _buildOverviewTab(ScrollController scrollController) {
+    return SingleChildScrollView(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+
+          // Landmark name/title
+          Text(
+            widget.landmarkName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Quick stats card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Latitude: ${widget.latitude.toStringAsFixed(4)}°',
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Longitude: ${widget.longitude.toStringAsFixed(4)}°',
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Description section
+          const Text(
+            'Quick Description',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Text(
+            widget.landmarkDescription,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.5,
+              color: AppColors.textSecondary,
+            ),
+          ),
+
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  // Build the markdown tab with rich formatted content
+  Widget _buildMarkdownTab(ScrollController scrollController) {
+    return SingleChildScrollView(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+
+          // Markdown widget with custom styling
+          MarkdownWidget(
+            data: widget.landmarkMarkdownContent,
+            shrinkWrap: true,
+            selectable: true, // Allow text selection
+            config: MarkdownConfig(
+              configs: [
+                // Configure heading styles
+                const H1Config(
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+                const H2Config(
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+                const H3Config(
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+
+                // Configure paragraph styling
+                const PConfig(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+
+                // Configure list styling
+                const UlConfig(
+                  marker: '•',
+                  markerStyle: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 16,
+                  ),
+                ),
+                const OlConfig(
+                  markerStyle: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                // Configure blockquote styling
+                BlockquoteConfig(
+                  blockquoteStyle: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.textSecondary,
+                    fontSize: 16,
+                  ),
+                  background: AppColors.lightGrey.withOpacity(0.3),
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  radius: const Radius.circular(8),
+                  borderLeft: const BorderSide(
+                    color: AppColors.primary,
+                    width: 4,
+                  ),
+                ),
+
+                // Configure code block styling
+                const PreConfig(
+                  background: AppColors.lightGrey,
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.symmetric(vertical: 12),
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  textStyle: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+
+                // Configure table styling
+                const TableConfig(
+                  defaultColumnWidth: FlexColumnWidth(1.0),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: AppColors.divider),
+                    ),
+                  ),
+                ),
+
+                // Configure link styling
+                LinkConfig(
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                  onTap: (url) {
+                    // Handle link taps - you can implement URL launching here
+                    print('Link tapped: $url');
+                    // For example: launch(url);
+                  },
+                ),
+
+                // Configure horizontal rule styling
+                const HrConfig(
+                  height: 1,
+                  color: AppColors.divider,
+                  margin: EdgeInsets.symmetric(vertical: 20),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
@@ -1195,10 +1455,11 @@ Widget _buildSimpleAROverlay({
   void _showImageViewer(String imageUrl, int initialIndex) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _FullScreenImageViewer(
-          images: widget.landmarkImages,
-          initialIndex: initialIndex,
-        ),
+        builder:
+            (context) => _FullScreenImageViewer(
+              images: widget.landmarkImages,
+              initialIndex: initialIndex,
+            ),
       ),
     );
   }
@@ -1255,7 +1516,7 @@ Widget _buildSimpleAROverlay({
                 border: Border.all(
                   color: Colors.black.withOpacity(0.2), // Subtle border
                   width: 4,
-                )
+                ),
               ),
             ),
           ),
@@ -1276,7 +1537,6 @@ Widget _buildSimpleAROverlay({
       ),
     );
   }
-
 }
 
 // Full-screen image viewer widget

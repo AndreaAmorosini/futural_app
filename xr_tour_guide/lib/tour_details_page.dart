@@ -217,26 +217,23 @@ class _TourDetailScreenState extends State<TourDetailScreen>
           print('Tapped on Waypoint ${index + 1}');
           _centerMap(waypoint.location);
 
-          if (isItineraryView) {
+          if (!isItineraryView) {
             setState(() {
-              _selectedWaypointIndex = index;
+              _selectedWaypointIndexMappa = index;
             });
-
             // Animate the bottom sheet to show more details
             // We can adjust the sheet size based on the selected waypoint if needed,
             // but for now, let's rely on the snap points.
             _sheetController.animateTo(
-              _sheetMinSize + 0.15,
+              _sheetMinSize + 0.25,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );
           } else {
             setState(() {
+              _selectedWaypointIndex = index;
               for (int i = 0; i < _expandedWaypoints.length; i++) {
                 _expandedWaypoints[i] = (i == index);
-                setState(() {
-                  _selectedWaypointIndexMappa = index;
-                });
               }
             });
           }
@@ -267,8 +264,8 @@ class _TourDetailScreenState extends State<TourDetailScreen>
 
             // Marker container
             Container(
-              width: isSelected ? 60 : (isSelectedMappa ? 52 :(isItineraryView ? 40 : 32)),
-              height: isSelected ? 60 : (isSelectedMappa ? 52 : (isItineraryView ? 40 : 32)),
+              width: isSelectedMappa ? 60 : (isSelected ? 52 :(isItineraryView ? 40 : 32)),
+              height: isSelectedMappa ? 60 : (isSelected ? 52 : (isItineraryView ? 40 : 32)),
               decoration: BoxDecoration(
                 color: isSelected | isSelectedMappa ? Colors.green.withOpacity(0.5) : AppColors.primary.withOpacity(0.5),
                 shape: BoxShape.circle,
@@ -287,7 +284,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: isSelected ? 25 : (isSelectedMappa ? 22 : (isItineraryView ? 16 : 14)),
+                    fontSize: isSelectedMappa ? 25 : (isSelected ? 22 : (isItineraryView ? 16 : 14)),
                   ),
                 ),
               ),
@@ -328,7 +325,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
     // Conditionally render the content based on the selected tab
     Widget mainContent;
     if (_selectedTab == 'Mappa') {
-      // Itinerario view: Full-screen map with a draggable sheet on top
+      // Mappa view: Full-screen map with a draggable sheet on top
       mainContent = Stack(
         children: [
           // Full-screen map
@@ -360,7 +357,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                       return _buildWaypointMarker(
                         index,
                         waypoint,
-                        isItineraryView: true,
+                        isItineraryView: false,
                       );
                     }).toList(),
               ),
@@ -469,7 +466,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
             ], // Snap points including full screen
             builder: (context, scrollController) {
               final selectedWaypoint =
-                  _waypoints[_selectedWaypointIndex];
+                  _waypoints[_selectedWaypointIndexMappa];
 
               return Container(
                 decoration: const BoxDecoration(
@@ -1277,6 +1274,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                                   return _buildWaypointMarker(
                                     index,
                                     waypoint,
+                                    isItineraryView: true,
                                   );
                                 }).toList(),
                           ),
@@ -1395,6 +1393,7 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                 onTap: () {
                   setState(() {
                     _expandedWaypoints[index] = !_expandedWaypoints[index];
+                    _selectedWaypointIndex = index;
                     if (_selectedTab == 'Itinerario' && (tourCategory != "Interno" && tourCategory != "Cibo")) {
                       // Center map on waypoint when expanded in Mappa tab
                       _centerMap(_waypoints[index].location);
@@ -1521,36 +1520,6 @@ class _TourDetailScreenState extends State<TourDetailScreen>
                           ),
                         ),
                       ),
-
-                    // AR Guide button (only for the first waypoint in this example)
-                    // if (index == 0)
-                    //   Padding(
-                    //     padding: const EdgeInsets.only(top: 8.0),
-                    //     child: Center(
-                    //       child: ElevatedButton.icon(
-                    //         onPressed: () {
-                    //           // AR Guide functionality
-                    //           print(
-                    //             'Activate AR Guide for Waypoint ${index + 1}',
-                    //           );
-                    //         },
-                    //         icon: const Icon(Icons.camera_alt),
-                    //         label: const Text('Attiva Guida AR'),
-                    //         style: ElevatedButton.styleFrom(
-                    //           backgroundColor: AppColors.primary,
-                    //           foregroundColor: Colors.white,
-                    //           padding: const EdgeInsets.symmetric(
-                    //             horizontal: 20,
-                    //             vertical: 12,
-                    //           ),
-                    //           shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(24),
-                    //           ),
-                    //           elevation: 2,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
                   ],
                 ),
               ),

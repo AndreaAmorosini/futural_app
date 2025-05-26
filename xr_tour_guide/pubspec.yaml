@@ -41,6 +41,8 @@ dependencies:
   flutter_map_location_marker: ^10.1.0
   splash_master: "any"
   flutter_launcher_icons: ^0.14.3
+  camera: ^0.11.1
+  markdown_widget: ^2.3.2+8
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +85,12 @@ flutter:
     - assets/logo_splash.png
     - assets/scritta_splash.png
     - assets/logo_icon.png
+    - assets/icons/audio.png
+    - assets/icons/document.png
+    - assets/icons/image.png
+    - assets/icons/link.png
+    - assets/icons/text.png
+    - assets/icons/video.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

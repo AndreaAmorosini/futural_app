@@ -497,27 +497,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Expanded(
               child: ListView(
                 children: [
-                  // Biometric ID toggle
-                  _buildToggleSettingTile(
-                    title: 'Biometric ID',
-                    value: _biometricEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _biometricEnabled = value;
-                      });
-                    },
-                  ),
+                  // // Biometric ID toggle
+                  // _buildToggleSettingTile(
+                  //   title: 'Biometric ID',
+                  //   value: _biometricEnabled,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       _biometricEnabled = value;
+                  //     });
+                  //   },
+                  // ),
 
-                  // Face ID toggle
-                  _buildToggleSettingTile(
-                    title: 'Face ID',
-                    value: _faceIdEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _faceIdEnabled = value;
-                      });
-                    },
-                  ),
+                  // // Face ID toggle
+                  // _buildToggleSettingTile(
+                  //   title: 'Face ID',
+                  //   value: _faceIdEnabled,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       _faceIdEnabled = value;
+                  //     });
+                  //   },
+                  // ),
 
                   // Change Password option
                   _buildSettingTile(
