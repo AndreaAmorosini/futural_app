@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -14,7 +15,7 @@ enum RecognitionState {
   ready,    // Initial state - show camera button
   scanning, // Currently scanning
   success,  // Recognition successful
-  failure,  // Recognition failed
+  failure,  // Recognition failed,
 }
 
 class ARCameraScreen extends StatefulWidget {
@@ -29,7 +30,31 @@ class ARCameraScreen extends StatefulWidget {
     Key? key,
     this.landmarkName = "Santuario di Montevergine",
     this.landmarkDescription =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        """
+# Santuario di Montevergine
+
+Il Santuario di Montevergine è un importante complesso monastico mariano situato a circa 1.270 metri sul livello del mare, nel massiccio del Partenio, nel comune di Mercogliano (Avellino).
+
+## Storia
+
+Fondato nel 1124 da San Guglielmo da Vercelli, il santuario è oggi uno dei principali luoghi di pellegrinaggio del Sud Italia, con oltre un milione di visitatori ogni anno.
+
+## Architettura
+
+- **Basilica**: La basilica attuale risale al XVIII secolo
+- **Cripta**: Conserva importanti opere d'arte medievali
+- **Museo**: Ospita preziosi manufatti storici e religiosi
+
+## Come Arrivare
+
+1. In auto dalla A16 uscita Avellino Ovest
+2. Con la funicolare da Mercogliano
+3. A piedi attraverso i sentieri del Partenio
+
+> Il santuario è aperto tutti i giorni dalle 6:00 alle 20:00
+
+[Visita il sito ufficiale](https://www.santuariodimontevergine.com)
+""",
     this.landmarkImages = const [
       'https://picsum.photos/300/200?random=1',
       'https://picsum.photos/300/200?random=2',
@@ -145,7 +170,7 @@ class _ARCameraScreenState extends State<ARCameraScreen>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _successAnimationController,
-      curve: Curves.easeOut, // Changed from Curves.elasticOut
+      curve: Curves.easeOut,
     ));
 
     // Add listener to debug animation progress
@@ -376,56 +401,6 @@ class _ARCameraScreenState extends State<ARCameraScreen>
     );
   }
 
-// Widget _buildReadyState() {
-//     final double innerButtonSize = 80.0;
-//     // The size of the separate semi-transparent circle behind the button
-//     final double outerCircleSize =
-//         innerButtonSize * 3.5; // Adjust multiplier as needed for desired size
-
-//     return Center(
-//       child: Stack(
-//         alignment: Alignment.center, // Center all children in the stack
-//         children: [
-//           // The semi-transparent circle (first, so it's behind)
-//           Container(
-//             width: outerCircleSize,
-//             height: outerCircleSize,
-//             decoration: BoxDecoration(
-//               color: Colors.black.withOpacity(
-//                 0.2,
-//               ), // Semi-transparent black as seen in the image
-//               shape: BoxShape.circle,
-//             ),
-//           ),
-//           // The camera button (second, so it's on top)
-//           GestureDetector(
-//             onTap: _startRecognition,
-//             child: Container(
-//               width: innerButtonSize,
-//               height: innerButtonSize,
-//               decoration: BoxDecoration(
-//                 color: Colors.blue, // Main button color
-//                 shape: BoxShape.circle,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.blue.withOpacity(0.3),
-//                     blurRadius: 20,
-//                     spreadRadius: 5,
-//                   ),
-//                 ],
-//               ),
-//               child: const Icon(
-//                 Icons.camera_alt,
-//                 color: Colors.white,
-//                 size: 40,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-  
   // Build scanning state (pulsing camera button)
   Widget _buildScanningState() {
     return Center(
@@ -620,49 +595,6 @@ class _ARCameraScreenState extends State<ARCameraScreen>
     );
   }
 
-// Simplified AR overlay for debugging
-// Widget _buildSimpleAROverlay({
-//   required double delay,
-//   required Color color,
-//   required String emoji,
-// }) {
-//   // Use manual progress instead of animation controller
-//   double opacity = _arOverlayProgress >= delay ? 1.0 : 0.0;
-//   double scale = _arOverlayProgress >= delay ? 1.0 : 0.0;
-    
-//   return Transform.scale(
-//     scale: scale,
-//     child: Opacity(
-//       opacity: opacity,
-//       child: Container(
-//         width: 50,
-//         height: 50,
-//         decoration: BoxDecoration(
-//           color: color,
-//           borderRadius: BorderRadius.circular(8),
-//           border: Border.all(color: Colors.white, width: 2), // Add border for visibility
-//           boxShadow: [
-//             BoxShadow(
-//               color: color.withOpacity(0.3),
-//               blurRadius: 10,
-//               spreadRadius: 2,
-//             ),
-//           ],
-//           ),
-//         child: Center(
-//           child: Text(
-//             emoji,
-//             style: const TextStyle(
-//               fontSize: 24,
-//               color: Colors.white,
-//             ),
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
 Widget _buildSimpleAROverlay({
     required double delay,
     required String assetPath, // Path to your custom icon in the assets folder
@@ -679,9 +611,6 @@ Widget _buildSimpleAROverlay({
     // Ensure _arOverlayProgress is accessible here, typically from your State class
     double opacity = _arOverlayProgress >= delay ? 1.0 : 0.0;
     double scale = _arOverlayProgress >= delay ? 1.0 : 0.0;
-
-    // Optional: For debugging animation and visibility
-    // print('AR Overlay - asset: $assetPath, delay: $delay, progress: $_arOverlayProgress, opacity: $opacity, scale: $scale, isVisible: $isVisible');
 
     return Transform.scale(
       scale: scale,
@@ -992,64 +921,56 @@ Widget _buildSimpleAROverlay({
                         ),
                       ),
 
-                      // const SizedBox(height: 20),
-
-                      // // Recognition status indicator
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 12,
-                      //     vertical: 8,
-                      //   ),
-                      //   decoration: BoxDecoration(
-                      //     color: _getStatusColor().withOpacity(0.1),
-                      //     borderRadius: BorderRadius.circular(20),
-                      //     border: Border.all(
-                      //       color: _getStatusColor(),
-                      //       width: 1,
-                      //     ),
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisSize: MainAxisSize.min,
-                      //     children: [
-                      //       Icon(
-                      //         _getStatusIcon(),
-                      //         color: _getStatusColor(),
-                      //         size: 16,
-                      //       ),
-                      //       const SizedBox(width: 8),
-                      //       Text(
-                      //         _getStatusText(),
-                      //         style: TextStyle(
-                      //           color: _getStatusColor(),
-                      //           fontWeight: FontWeight.w500,
-                      //           fontSize: 14,
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
                       const SizedBox(height: 20),
 
-                      // Description section header
-                      const Text(
-                        'Description',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Description text
-                      Text(
-                        widget.landmarkDescription,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.5,
-                          color: AppColors.textSecondary,
+                      // Description using MarkdownWidget
+                      MarkdownWidget(
+                        data: widget.landmarkDescription,
+                        config: MarkdownConfig(
+                          configs: [
+                            const PConfig(
+                              textStyle: TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            H1Config(
+                              textStyle: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            H2Config(
+                              textStyle: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            LinkConfig(
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                            BlockquoteConfig(
+                              decoration: BoxDecoration(
+                
+                                border: Border(
+                                  left: BorderSide(
+                                    color: AppColors.primary.withOpacity(0.5),
+                                    width: 4,
+                                  ),
+                                ),
+                              ),
+                              textStyle: TextStyle(
+                                color: AppColors.textSecondary.withOpacity(0.8),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -1081,48 +1002,6 @@ Widget _buildSimpleAROverlay({
         );
       },
     );
-  }
-
-  // Get status color based on recognition state
-  Color _getStatusColor() {
-    switch (_recognitionState) {
-      case RecognitionState.ready:
-        return Colors.blue;
-      case RecognitionState.scanning:
-        return Colors.orange;
-      case RecognitionState.success:
-        return Colors.green;
-      case RecognitionState.failure:
-        return Colors.red;
-    }
-  }
-
-  // Get status icon based on recognition state
-  IconData _getStatusIcon() {
-    switch (_recognitionState) {
-      case RecognitionState.ready:
-        return Icons.camera_alt;
-      case RecognitionState.scanning:
-        return Icons.search;
-      case RecognitionState.success:
-        return Icons.check_circle;
-      case RecognitionState.failure:
-        return Icons.error;
-    }
-  }
-
-  // Get status text based on recognition state
-  String _getStatusText() {
-    switch (_recognitionState) {
-      case RecognitionState.ready:
-        return 'Tap to scan';
-      case RecognitionState.scanning:
-        return 'Scanning...';
-      case RecognitionState.success:
-        return 'Recognition successful';
-      case RecognitionState.failure:
-        return 'Recognition failed';
-    }
   }
 
   // Build a grid of photos
@@ -1203,32 +1082,6 @@ Widget _buildSimpleAROverlay({
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Colors.black, // Black background for camera feel
-  //     extendBodyBehindAppBar: true,
-  //     body: Stack(
-  //       children: [
-  //         // Live camera background
-  //         _buildCameraBackground(),
-
-  //         // Central recognition widget overlay
-  //         _buildCentralRecognitionWidget(),
-
-  //         // Back button (top left)
-  //         _buildBackButton(context),
-
-  //         // Mini map (top right)
-  //         _buildMiniMap(context),
-
-  //         // Draggable bottom sheet with landmark info
-  //         _buildDraggableSheet(context),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     // Define the size for the static semi-transparent circle
@@ -1276,7 +1129,6 @@ Widget _buildSimpleAROverlay({
       ),
     );
   }
-
 }
 
 // Full-screen image viewer widget
